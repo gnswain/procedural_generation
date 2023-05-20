@@ -11,8 +11,10 @@ using namespace std;
 
 // Used to determine the proportion of the none default tile.
 int NOISE_DENSITY = 72;
+// Amount of neighbors required to make water tile
 int NUM_NEIGHBORS = 5;
 
+// Chance of tree being put on a ground piece
 int TREE_PERCENTAGE = 7;
 
 // Height of grid
