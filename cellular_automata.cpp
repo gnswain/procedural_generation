@@ -114,7 +114,7 @@ void create_grid_image(int num, int width, int height, vector<vector<char>>& gri
         }
     }
 
-    string file_name = to_string(num) + "_passes.bmp";
+    string file_name = "./pics/" + to_string(num) + "_passes.bmp";
 
     image.Export(file_name);
 }
