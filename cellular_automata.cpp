@@ -13,16 +13,19 @@ using namespace std;
 int NOISE_DENSITY = 72;
 int NUM_NEIGHBORS = 5;
 
+int TREE_PERCENTAGE = 7;
+
 // Height of grid
-const int GRID_HEIGHT = 100;
+const int GRID_HEIGHT = 50;
 // Width of grid
-const int GRID_WIDTH = 100;
+const int GRID_WIDTH = 50;
 
 // const int WATER_COLOR[3] = {17, 54, 240};
 // const int GRASS_COLOR[3] = {17, 240, 54};
 
 const Color WATER_COLOR = Color(239, 202, 18);
 const Color GRASS_COLOR = Color(239, 18, 202);
+const Color TREE_COLOR = Color(213, 228, 250);
 
 // TODO: make grid global
 
@@ -46,6 +49,8 @@ void print_grid(vector<vector<char>>& grid) {
                 cout << "\033[42m \033[0m";
             } else if (grid[i][j] == 'w') {
                 cout << "\033[44m \033[0m";
+            } else if (grid[i][j] == 't') {
+                cout << "\033[33m \033[0m";
             } else {
                 cout << " " << grid[i][j] << " "; 
             }
@@ -108,8 +113,10 @@ void create_grid_image(int num, int width, int height, vector<vector<char>>& gri
         for (int x = 0; x < width; x++) {
             if (grid[y][x] == 'g') {
                 image.SetColor(GRASS_COLOR, x, y);
-            } else {
+            } else if (grid[y][x] == 'w') {
                 image.SetColor(WATER_COLOR, x, y);
+            } else if (grid[y][x] == 't') {
+                image.SetColor(TREE_COLOR, x, y);
             }
         }
     }
@@ -117,6 +124,34 @@ void create_grid_image(int num, int width, int height, vector<vector<char>>& gri
     string file_name = "./pics/" + to_string(num) + "_passes.bmp";
 
     image.Export(file_name);
+}
+
+vector<vector<char>> add_trees(vector<vector<char>>& grid) {
+    for (int i = 0; i < grid.size(); i++) {
+        for (int j = 0; j < grid[i].size(); j++) {
+            if (grid[i][j] == 'g') {
+                int rand = std::rand() % 100;
+                bool valid = true;
+
+                if (rand < TREE_PERCENTAGE) {
+                    for (int row = (i - 1); row <= (i + 1); row++) {
+                        for (int col = (j - 1); col <= (j + 1); col++) {
+                            if (is_inbounds(row, col)) {
+                                if (grid[row][col] == 't') {
+                                    valid = false;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (valid)
+                        grid[i][j] = 't';
+                }
+            }
+        }
+    }
+
+    return grid;
 }
 
 
@@ -157,14 +192,15 @@ int main() {
     populate_grid(grid);
 
     create_grid_image(0, GRID_WIDTH, GRID_HEIGHT, grid);
-    for(int i = 1; i < 11; i++) {
+    for(int i = 1; i < 5; i++) {
         grid = process_grid(grid);
         create_grid_image(i, GRID_WIDTH, GRID_HEIGHT, grid);
     }
     
-    for (int i = 0; i < 10; i++) {
-        grid = process_grid(grid); 
-    }
+    grid = add_trees(grid);
+    print_grid(grid);
+
+    create_grid_image(10, GRID_WIDTH, GRID_HEIGHT, grid);
 
     // for (int i = 0; i < 8; i++) {
     //     process_grid(grid);
