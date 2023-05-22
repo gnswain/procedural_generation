@@ -1,1 +1,6 @@
+compile and run:
+  ./run.sh
+    OR
+  bash run.sh
+
 compile: g++ cellular_automata.cpp -pthread
