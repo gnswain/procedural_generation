@@ -17,7 +17,7 @@ const int NUM_NEIGHBORS = 5;
 // Iterations of the processing to run
 const int ITERATIONS = 4;
 
-// Chance of tree being put on a ground piece
+// Chance of "trees" being put on a ground piece
 const int TREE_PERCENTAGE = 7;
 // True if you want trees to be generated
 const bool TREES = false;
@@ -35,11 +35,13 @@ const int GRID_WIDTH = 100;
 // 1080p -> 1920 x 1080
 
 // !!!! -> Can change it to be "lava" instead of water and "stone" instead of grass
-const Color WATER_COLOR = Color(255, 102, 0); // lava
-const Color GRASS_COLOR = Color(38, 38, 38); // stone
-// const Color WATER_COLOR = Color(17, 54, 240); // actually water
-// const Color GRASS_COLOR = Color(17, 240, 54); // actually grass
+const Color WATER_COLOR = Color(17, 54, 240);
+const Color GRASS_COLOR = Color(17, 240, 54);
 const Color TREE_COLOR = Color(105, 53, 16);
+// lava  -> 255, 102, 0
+// stone -> 38, 38, 38
+// water -> 17, 54, 240
+// grass -> 17, 240, 54
 
 // This upscales the grid so we have higher resolution pictures
 vector<vector<char>> upscale_grid(vector<vector<char>>& grid) {
