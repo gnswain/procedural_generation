@@ -3,12 +3,12 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <thread>
+#include <utility>
 
 #include "./bmp/image.cpp"
 
 using namespace std;
-
-// TODO: the image created is inverted
 
 // Used to determine the proportion of the none default tile
 const int NOISE_DENSITY = 72;
@@ -23,14 +23,16 @@ const int TREE_PERCENTAGE = 7;
 const bool TREES = false;
 
 // How much to upscale the grid for the .bmp
-const int UPSCALE_FACTOR = 4;
+const int UPSCALE_FACTOR = 10;
 // True if you want the .bmp to be upscaled
 const bool UPSCALE = true;
 
-// Height of grid
-const int GRID_HEIGHT = 4;
-// Width of grid
-const int GRID_WIDTH = 4;
+// Dimensions of grid
+const int GRID_HEIGHT = 100;
+const int GRID_WIDTH = 100;
+// 4k    -> 3840 x 2160
+// 1440p -> 2560 x 1440
+// 1080p -> 1920 x 1080
 
 // !!!! -> Can change it to be "lava" instead of water and "stone" instead of grass
 const Color WATER_COLOR = Color(255, 102, 0); // lava
@@ -39,6 +41,7 @@ const Color GRASS_COLOR = Color(38, 38, 38); // stone
 // const Color GRASS_COLOR = Color(17, 240, 54); // actually grass
 const Color TREE_COLOR = Color(105, 53, 16);
 
+// This upscales the grid so we have higher resolution pictures
 vector<vector<char>> upscale_grid(vector<vector<char>>& grid) {
     vector<vector<char>> new_grid (GRID_HEIGHT * UPSCALE_FACTOR, 
                                    std::vector<char> (GRID_WIDTH * UPSCALE_FACTOR, '-'));
@@ -58,6 +61,7 @@ vector<vector<char>> upscale_grid(vector<vector<char>>& grid) {
     return new_grid;
 }
 
+// This creates the Bitmap of the generated grid
 void create_grid_image(string name, int width, int height, vector<vector<char>>& grid) {
     vector<vector<char>> print_grid = grid;
     int w = width;
@@ -85,6 +89,9 @@ void create_grid_image(string name, int width, int height, vector<vector<char>>&
     image.Export(name + ".bmp");
 }
 
+// Prints the grid as colors on the console
+// !!!! Note, might change how many horizontal spaces there are to account for different !!!!
+// !!!! terminals vertical spacing.                                                      !!!!
 void print_grid(vector<vector<char>>& grid) {
     for (int i = 0; i < grid.size(); i++) {
         for (int j = 0; j < grid[i].size(); j++) {
@@ -102,6 +109,7 @@ void print_grid(vector<vector<char>>& grid) {
     }   
 }
 
+// Prints the grid in text format
 void print_grid_text(vector<vector<char>>& grid) {
     for (int i = 0; i < grid.size(); i++) {
         for (int j = 0; j < grid[i].size(); j++) {
@@ -118,6 +126,7 @@ bool is_inbounds(int row, int col) {
     return true;
 }
 
+// Runs the cellular automata over the grid
 vector<vector<char>> process_grid(vector<vector<char>> grid) {
     vector<vector<char>> new_grid (grid.size(), std::vector<char> (grid[0].size(), '-'));
 
@@ -148,6 +157,7 @@ vector<vector<char>> process_grid(vector<vector<char>> grid) {
     return new_grid;
 } // end process_grid
 
+// Adds "trees" (spots) to the grid
 vector<vector<char>> add_trees(vector<vector<char>>& grid) {
     for (int i = 0; i < grid.size(); i++) {
         for (int j = 0; j < grid[i].size(); j++) {
@@ -176,6 +186,7 @@ vector<vector<char>> add_trees(vector<vector<char>>& grid) {
     return grid;
 }
 
+// Creates the initial noisy grid
 void populate_grid(vector<vector<char>>& grid) {
     for (int i = 0; i < grid.size(); i++) {
         for (int j = 0; j < grid[i].size(); j++) {
@@ -190,25 +201,41 @@ void populate_grid(vector<vector<char>>& grid) {
 }
 
 int main() {
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     srand(time(NULL));
 
+    std::vector<std::thread> threads;
     vector<vector<char>> grid (GRID_HEIGHT, std::vector<char> (GRID_WIDTH, '-'));
 
     populate_grid(grid);
 
     string file_name = "./pics/" + to_string(0) + "_passes";
-    create_grid_image(file_name, GRID_WIDTH, GRID_HEIGHT, grid);
+    threads.push_back(std::thread(create_grid_image, file_name, GRID_WIDTH, GRID_HEIGHT, std::ref(grid)));
     for(int i = 1; i <= ITERATIONS; i++) {
         grid = process_grid(grid);
 
         file_name = "./pics/" + to_string(i) + "_passes";
-        create_grid_image(file_name, GRID_WIDTH, GRID_HEIGHT, grid);
+        threads.push_back(std::thread(create_grid_image, file_name, GRID_WIDTH, GRID_HEIGHT, std::ref(grid)));
     }
     
     if (TREES) {
         grid = add_trees(grid);
-        create_grid_image("./pics/with_trees", GRID_WIDTH, GRID_HEIGHT, grid);
+        threads.push_back(std::thread(create_grid_image, "./pics/with_trees", GRID_WIDTH, GRID_HEIGHT, std::ref(grid)));
     }
+
+    for (int i= 0; i < threads.size(); i++) {
+        if (threads[i].joinable()) {
+            threads[i].join();
+        }
+    }
+    
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+    long micro_seconds = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
+    double seconds = (float)micro_seconds / 1000000;
+
+    std::cout << "Time difference = " << micro_seconds << " [µs]" << std::endl;
+    std::cout << "Time difference = " << seconds << " [s]" << std::endl;
 
     return 0;
 }
