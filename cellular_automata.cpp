@@ -23,13 +23,13 @@ const int TREE_PERCENTAGE = 7;
 const bool TREES = false;
 
 // How much to upscale the grid for the .bmp
-const int UPSCALE_FACTOR = 4;
+const int UPSCALE_FACTOR = 10;
 // True if you want the .bmp to be upscaled
 const bool UPSCALE = true;
 
 // Dimensions of grid
-const int GRID_HEIGHT = 1080;
-const int GRID_WIDTH = 1920;
+const int GRID_HEIGHT = 100;
+const int GRID_WIDTH = 100;
 // 4k    -> 3840 x 2160
 // 1440p -> 2560 x 1440
 // 1080p -> 1920 x 1080
@@ -64,7 +64,7 @@ vector<vector<char>> upscale_grid(vector<vector<char>>& grid) {
 }
 
 // This creates the Bitmap of the generated grid
-void create_grid_image(string name, int width, int height, vector<vector<char>>& grid) {
+void create_grid_image(string name, int width, int height, vector<vector<char>> grid) {
     vector<vector<char>> print_grid = grid;
     int w = width;
     int h = height;
