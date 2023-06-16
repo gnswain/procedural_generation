@@ -6,3 +6,5 @@ pics/
 .vscode
 
 error.txt
+
+*.class
