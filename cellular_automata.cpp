@@ -76,6 +76,7 @@ void create_grid_image(string name, int width, int height, vector<vector<char>> 
     }
     Image image(w, h);
 
+    // Need to double check x's and y's
     for (int y = 0; y < print_grid.size(); y++) {
         for (int x = 0; x < print_grid[y].size(); x++) {
             if (print_grid[y][x] == 'g') {

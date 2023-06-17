@@ -2,12 +2,12 @@ import java.io.PrintStream;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class DiamondSquare {
-    static final int SIZE = 17;
-    static final int MAX = 20;
+    static final int SIZE = 65;
+    static final int MAX = 36;
     static final int MIN = 0;
     static final double DECAY_VALUE = .9935;
 
-    static double[] random_range = new double[] {-4, 4};
+    static double[] random_range = new double[] {-2, 2};
 
     static int[][] grid;
 
